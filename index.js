@@ -1,8 +1,20 @@
 //common JS modules, no ES2015 modules for Express?
 const express = require('express');
-
-//needed for code execution inside passport.js
+const keys = require('./config/keys');
+const mongoose = require('mongoose');
+//require so that the configuration for the code in these files is loaded
+require('./models/User');
 require('./services/passport');
+
+//connect, also add obj parameter to get rid of warnings
+mongoose.connect(keys.mongoURI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => {
+        console.log('Connected to MongoDB');
+    })
+    .catch(err => console.log('Error on start: ' + err.stack));
 
 const app = express();
 
