@@ -17,5 +17,11 @@ module.exports = (app) => {
         '/auth/google/callback', 
         passport.authenticate('google')
     );
+
+    //route handler when someone makes a GET request to our app
+    //req = incoming request, res = outgoing response; simply send the user for the res
+    app.get('/api/current_user', (req, res) => {
+        res.send(req.user);
+    });
 };
 

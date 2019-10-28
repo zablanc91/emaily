@@ -2,6 +2,9 @@
 const express = require('express');
 const keys = require('./config/keys');
 const mongoose = require('mongoose');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
+
 //require so that the configuration for the code in these files is loaded
 require('./models/User');
 require('./services/passport');
@@ -17,6 +20,18 @@ mongoose.connect(keys.mongoURI, {
     .catch(err => console.log('Error on start: ' + err.stack));
 
 const app = express();
+
+//in cookie session: lasts 30 days (in milliseconds), second arg is a key (inside our keys.js) to encrypt our cookie
+app.use(
+    cookieSession({
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        keys: [keys.cookieKey]
+    })
+);
+
+//tell Passport to use cookies to handle authentication
+app.use(passport.initialize());
+app.use(passport.session());
 
 //needed so authRoutes can have access to app
 require('./routes/authRoutes')(app);
