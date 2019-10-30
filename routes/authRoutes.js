@@ -18,6 +18,13 @@ module.exports = (app) => {
         passport.authenticate('google')
     );
 
+    //when user logs out, take the cookie and get rid of the user id
+    //also send response, without one the browser will not terminate the session
+    app.get('/api/logout', (req, res) => {
+        req.logout();
+        res.send(req.user);
+    });
+
     //route handler when someone makes a GET request to our app
     //req = incoming request, res = outgoing response; simply send the user for the res
     app.get('/api/current_user', (req, res) => {
