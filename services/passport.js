@@ -29,7 +29,8 @@ passport.use(
     new GoogleStrategy({
         clientID: keys.googleClientID,
         clientSecret: keys.googleClientSecret,
-        callbackURL: 'https://quiet-chamber-41370.herokuapp.com/auth/google/callback',
+        callbackURL: '/auth/google/callback',
+        proxy: true
     }, (accessToken, refreshToken, profile, done) => {
         //check to see if the user is already in the DB, this is an async function and returns a promise
         User.findOne({ googleId: profile.id })
