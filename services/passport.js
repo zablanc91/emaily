@@ -31,24 +31,22 @@ passport.use(
         clientSecret: keys.googleClientSecret,
         callbackURL: '/auth/google/callback',
         proxy: true
-    }, (accessToken, refreshToken, profile, done) => {
+    }, 
+    async (accessToken, refreshToken, profile, done) => {
         //check to see if the user is already in the DB, this is an async function and returns a promise
-        User.findOne({ googleId: profile.id })
-          .then((existingUser) => {
-              if(existingUser){
-                  //already have a record with profile id
-                  //done arguments - error object(1st), user record (2nd)
-                  done(null, existingUser);
-              }
-              else{
-                 //don't have this user, make a new record
-                 //make sure we only call done when the user has been saved; this is an async funct, so use the record in the promise callback in then
-                 new User({googleId: profile.id}).save()
-                   .then(user => done(null, user))
-                   .catch(error => console.log('error making new record:', error)); 
-              }
-          }).catch(error => console.log('passport error:', error));
-
+        const existingUser = await User.findOne({ googleId: profile.id });
+        
+        if(existingUser){
+            //already have a record with profile id
+            //done arguments - error object(1st), user record (2nd)
+            done(null, existingUser);
+        }
+        else{
+            //don't have this user, make a new record
+            //make sure we only call done when the user has been saved; this is an async funct, so use the record in the promise callback in then
+            const user = await new User({googleId: profile.id}).save();
+            done(null, user);
+        }
         /* previously just logged info to terminal
         console.log('access token: ', accessToken);
         console.log('refresh token: ', refreshToken);
