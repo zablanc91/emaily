@@ -12,17 +12,21 @@ module.exports = (app) => {
         })
     );
 
-    //route handler when user visits /auth/google/callback, will send in code for user profile info
+    //route handler when user visits /auth/google/callback after OAuth flow, will send in code for user profile info
+    //third arg - pass to next handler and go to surveys route
     app.get(
         '/auth/google/callback', 
-        passport.authenticate('google')
+        passport.authenticate('google'),
+        (req, res) => {
+            res.redirect('/surveys');
+        }
     );
 
     //when user logs out, take the cookie and get rid of the user id
     //also send response, without one the browser will not terminate the session
     app.get('/api/logout', (req, res) => {
         req.logout();
-        res.send(req.user);
+        res.redirect('/');
     });
 
     //route handler when someone makes a GET request to our app
