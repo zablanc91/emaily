@@ -4,6 +4,7 @@ const keys = require('./config/keys');
 const mongoose = require('mongoose');
 const cookieSession = require('cookie-session');
 const passport = require('passport');
+const bodyParser = require('body-parser');
 
 //require so that the configuration for the code in these files is loaded
 require('./models/User');
@@ -21,6 +22,9 @@ mongoose.connect(keys.mongoURI, {
 
 const app = express();
 
+//make body-parser available for POST/PUT/PATCH requests
+app.use(bodyParser.json());
+
 //in cookie session: lasts 30 days (in milliseconds), second arg is a key (inside our keys.js) to encrypt our cookie
 app.use(
     cookieSession({
@@ -33,8 +37,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-//needed so authRoutes can have access to app
+//needed so routes files can have access to app
 require('./routes/authRoutes')(app);
+require('./routes/billingRoutes')(app);
 
 /*
 //this was initially test code, here for reference
