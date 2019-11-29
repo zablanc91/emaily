@@ -41,6 +41,19 @@ app.use(passport.session());
 require('./routes/authRoutes')(app);
 require('./routes/billingRoutes')(app);
 
+
+//make sure Express behaves correctly in prod mode
+if(process.env.NODE_ENV === 'production'){
+    //Express will serve up prod assets ie main.js
+    app.use(express.static('client/build'));
+
+    //Express will serve up the index.html file if route not recognized
+    const path = require('path');
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    });
+}
+
 /*
 //this was initially test code, here for reference
 //at root route, run the arrow funct, response sent back is an object to display
