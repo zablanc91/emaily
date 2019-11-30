@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 
 //require so that the configuration for the code in these files is loaded
 require('./models/User');
+require('./models/Survey');
 require('./services/passport');
 
 //connect, also add obj parameter to get rid of warnings
@@ -40,6 +41,7 @@ app.use(passport.session());
 //needed so routes files can have access to app
 require('./routes/authRoutes')(app);
 require('./routes/billingRoutes')(app);
+require('./routes/surveyRoutes')(app);
 
 
 //make sure Express behaves correctly in prod mode
