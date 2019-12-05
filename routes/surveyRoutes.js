@@ -7,7 +7,11 @@ const surveyTemplate = require('../services/emailTemplates/surveyTemplate');
 const Survey = mongoose.model('surveys');
 
 module.exports = app => {
-    app.post('/api/surveys', requireLogin, requireCredits, (req, res) => {
+    app.get('/api/surveys/thanks', (req, res) => {
+        res.send('Thank you for voting.');
+    });
+
+    app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {
         //User model is inside req.user, req.body has info you need
 
         //makes new instance of a Survey, still has not been persisted to mongoDB
@@ -25,6 +29,22 @@ module.exports = app => {
 
         //after survey created, send email, 2nd arg is email template
         const mailer = new Mailer(survey, surveyTemplate(survey));
-        mailer.send();
+
+        try {
+            //async functions
+            await mailer.send();
+            await survey.save();
+
+            //deduct credit from User then save
+            req.user.credits -= 1;
+            const user = await req.user.save();
+
+            //send back updated user model to indicate change in credits
+            res.send(user);
+        } catch(err){
+            //unprocessable entity
+            res.status(422).send(err);
+        }
+
     });
 };

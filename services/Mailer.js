@@ -59,7 +59,7 @@ class Mailer extends helper.Mail {
         });
 
         //send to Sendgrid
-        const response = this.sgApi.API(request);
+        const response = await this.sgApi.API(request);
         return response;
     }
 }
