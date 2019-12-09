@@ -46,6 +46,7 @@ class Header extends Component {
     }
 }
 
+//deconstruct auth from state
 const mapStateToProps = ({auth}) => {
     return {auth};
 }

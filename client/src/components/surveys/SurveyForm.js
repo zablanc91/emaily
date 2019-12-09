@@ -4,20 +4,14 @@ import { reduxForm, Field } from 'redux-form';
 import { Link } from 'react-router-dom';
 import SurveyField from './SurveyField';
 import validateEmails from '../../utils/validateEmails';
+import formFields from './formFields';
 
-//will be used to iterate through to generate SurveyFields
-const FIELDS = [
-    {label: 'Survey Title', name: 'title'},
-    {label: 'Subject Line', name: 'subject'},
-    {label: 'Email Body', name: 'body'},
-    {label: 'Recipient List', name: 'emails'}
-];
 
 class SurveyForm extends Component {
     //helper to render all SurveyFields
     //any custom prop added to Field will be forwarded to component
     renderFields(){
-        return FIELDS.map(({name, label}) => 
+        return formFields.map(({name, label}) => 
             <Field
                 key={name}
                 label={label}
@@ -32,11 +26,17 @@ class SurveyForm extends Component {
     render(){
         return(
             <div>
-                <form onSubmit={this.props.handleSubmit(values => console.log(values))}>
+                <form 
+                    onSubmit={this.props.handleSubmit(this.props.onSurveySubmit)}
+                    onReset={() => this.props.reset()}
+                >
                     {this.renderFields()}
                     <Link to="/surveys" className="red btn-flat white-text">
                         Cancel
                     </Link>
+                    <button style={{margin: '0 10px'}} type="reset" className="blue btn-flat white-text">
+                        Clear
+                    </button>
                     <button className="teal btn-flat right white-text" type="submit" >
                         Next
                         <i className="material-icons right" >done</i>
@@ -47,13 +47,13 @@ class SurveyForm extends Component {
     }
 }
 
-//values is an object that has a key of name (from FIELDS) and value of whatever was typed in
+//values is an object that has a key of name (from formFields) and value of whatever was typed in
 //need to return an object, if empty form is valid; if error has a property that matches one of the SurveyFields properties (ie name of title), it will pass on to that Field
 function validate(values) {
     const errors = {};
 
     errors.emails = validateEmails(values.emails || '');
-    FIELDS.forEach(({name}) => {
+    formFields.forEach(({name}) => {
         if(!values[name]){
             errors[name] = 'You must provide a value';
         }
@@ -62,8 +62,9 @@ function validate(values) {
     return errors;
 }
 
-//will define validate to pass to reduxForm so it's automatically ran ever time form is submitted
+//will define validate to pass to reduxForm so it's automatically ran every time form is submitted
 export default reduxForm({
     validate,
-    form: 'surveyForm'
+    form: 'surveyForm',
+    destroyOnUnmount: false
 })(SurveyForm);
