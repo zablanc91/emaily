@@ -12,3 +12,10 @@ export const handleToken = (token) => async (dispatch) => {
     const res = await axios.post('/api/stripe', token);
     dispatch({type: FETCH_USER, payload: res.data});
 };
+
+//take survey form values and make POST request to our backend API
+//check surveyRoutes for reference, values is the req and updated user model is res
+export const submitSurvey = (values) => async (dispatch) => {
+    const res = await axios.post('/api/surveys', values);
+    dispatch({type: FETCH_USER, payload: res.data});
+};
