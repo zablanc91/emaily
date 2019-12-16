@@ -16,11 +16,49 @@ module.exports = app => {
     //req is the incoming array of events from webhook
     //first extract the path from URL, then get survey ID and choice
     app.post('/api/surveys/webhooks', (req, res) => {
-        const events = req.body.map((event) => {
-            const pathName = new URL(event.url).pathname;
-            const p = new Path('/api/surveys/:surveyId/:choice');
-            console.log(p.test(pathName));
-        })
+        const p = new Path('/api/surveys/:surveyId/:choice');
+
+        const events = req.body.map(({url, email}) => {
+            const match = p.test(new URL(url).pathname);
+            //if URL has no surveyId or no choice, match is null
+            if(match){
+                return {
+                    email,
+                    surveyId: match.surveyId,
+                    choice: match.choice
+                };
+            }
+        });
+
+        //clear out any undefined events 
+        const compactEvents = events.filter(event => event !== false);
+
+        //clear out any duplicate events
+        const uniqueEvents = compactEvents.reduce((acc, current) => {
+            const x = acc.find(item => (item.surveyId === current.surveyId && item.email === current.email));
+            if(!x){
+                return acc.concat([current]);
+            }
+            else{
+                return acc;
+            }
+        }, []);
+
+        //go through uniqueEvents and update mongoDB
+        uniqueEvents.forEach( ({surveyId, email, choice}) => {
+            Survey.updateOne({
+               _id: surveyId,
+               recipients: {
+                   $elemMatch: {email: email, responded: false}
+               } 
+            }, {
+                $inc: { [choice]: 1},
+                $set: {'recipients.$.responded': true}
+            }).exec();
+        });
+
+        console.log(uniqueEvents);
+        res.send({});
     });
 
     app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {
