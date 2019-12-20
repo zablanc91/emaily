@@ -9,6 +9,16 @@ const surveyTemplate = require('../services/emailTemplates/surveyTemplate');
 const Survey = mongoose.model('surveys');
 
 module.exports = app => {
+
+    //reach into DB and get surveys for the User (requires authenticated user)
+    app.get('/api/surveys', requireLogin, async (req, res) => {
+        //update - excludes list of recipients for each survey
+        const surveys = await Survey
+            .find({ _user: req.user.id})
+            .select({recipients: false});
+        res.send(surveys);
+    });
+
     app.get('/api/surveys/:surveyId/:choice', (req, res) => {
         res.send('Thank you for voting.');
     });
